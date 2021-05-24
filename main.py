@@ -13,23 +13,25 @@ auth.set_access_token(ACCESS_TOKEN, SECRET_ACCESS_TOKEN)
 api = twitter.API(auth)
 
 def twitter_bot(hashtag, delay):
+    tweet_old_id = 0
     while True:
         print(f"\n{datetime.datetime.now()}\n")
 
         for tweet in twitter.Cursor(api.search, q=hashtag, rpp='0').items(1):
-            try:
-                tweet_id = dict(tweet._json)["id"]
-                tweet_text = dict(tweet._json)["text"]
+            if tweet_old_id != dict(tweet._json)["id"]:
+                try:
+                    tweet_old_id = dict(tweet._json)["id"]
+                    tweet_id = dict(tweet._json)["id"]
+                    tweet_text = dict(tweet._json)["text"]
 
-                print("id: " + str(tweet_id))
-                print("text: " + str(tweet_text))
+                    print("id: " + str(tweet_id))
+                    print("text: " + str(tweet_text))
 
-                api.create_favorite(tweet_id)
-                api.retweet(tweet_id)
+                    api.retweet(tweet_id)
 
-            except twitter.TweepError as error:
-                print(error.reason)
+                except twitter.TweepError as error:
+                    print(error.reason)
 
         time.sleep(delay)
 
-twitter_bot("#SFV_saguao", 10)
+twitter_bot("#SFV_saguao", 20)
